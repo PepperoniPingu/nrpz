@@ -1,0 +1,2 @@
+# Rohde & Schwarz NRP-Z USB power sensors: let the logged-in user open them.
+SUBSYSTEM=="usb", ATTR{idVendor}=="0aad", MODE="0660", GROUP="dialout", TAG+="uaccess"

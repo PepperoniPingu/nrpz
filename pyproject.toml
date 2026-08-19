@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nrpz"
+version = "0.1.0"
+description = "Native Linux driver for Rohde & Schwarz NRP-Z USB power sensors (no VISA / vendor DLLs)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Hugo Frisk", email = "hugopaf@outlook.com" }]
+keywords = ["rohde-schwarz", "nrp-z", "nrp-z11", "power-sensor", "usb", "libusb", "rf", "instrument"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+]
+dependencies = ["pyusb>=1.2"]
+
+[project.scripts]
+nrpz = "nrpz:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nrpz"]
