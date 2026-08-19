@@ -29,26 +29,28 @@ Scope: legacy text/scalar mode -- *IDN?, config, zeroing, average power. Trace/
 CCDF waveform block reads (the native binary typed-queue protocol) are not
 decoded.
 """
+
+import math
+import struct
 import sys
 import time
-import struct
-import math
 
 import usb.core
 import usb.util
 
 __version__ = "0.1.0"
-__all__ = ["NrpZ", "NrpError", "decode_message", "dbm", "main",
-           "VID", "PID", "DEV_ERR"]
+__all__ = ["NrpZ", "NrpError", "decode_message", "dbm", "main", "VID", "PID", "DEV_ERR"]
 
 VID, PID = 0x0AAD, 0x000C
 EP_OUT, EP_IN = 0x01, 0x82
 R_TEXT, R_PARAM, R_RESULT, R_STATE, R_END = 0x54, 0x4C, 0x45, 0x5A, 0x52
 
 # Device status codes carried in a record's status byte (see R&S nrpdef.h).
-DEV_ERR = {0x02: "over-range: A/D limit reached, result may be wrong",
-           0x08: "OVERLOAD: reduce RF input power immediately",
-           0x40: "result questionable (disrupted USB transfer); re-measure"}
+DEV_ERR = {
+    0x02: "over-range: A/D limit reached, result may be wrong",
+    0x08: "OVERLOAD: reduce RF input power immediately",
+    0x40: "result questionable (disrupted USB transfer); re-measure",
+}
 
 
 class NrpError(Exception):
@@ -79,7 +81,7 @@ def decode_message(records):
     for off in sorted(parts):
         if len(out) < off:
             out.extend(b"\x00" * (off - len(out)))
-        out[off:off + 10] = parts[off]
+        out[off : off + 10] = parts[off]
     return status, out.split(b"\x00", 1)[0].decode("latin1").strip(), floats
 
 
@@ -201,8 +203,10 @@ class NrpZ:
         status, _, _ = self._read_message(idle_ms=2500, max_ms=20000)
         self._drain()
         if status:
-            raise NrpError(f"zero rejected (status 0x{status:02x}); disconnect or "
-                           "terminate the RF input (needs < ~-30 dBm) and retry")
+            raise NrpError(
+                f"zero rejected (status 0x{status:02x}); disconnect or "
+                "terminate the RF input (needs < ~-30 dBm) and retry"
+            )
 
     def measure_power(self, freq_hz=1e9, count=4, timeout=8000, check_freq=True):
         """One-shot average-power measurement. Returns calibrated power in watts
@@ -214,17 +218,21 @@ class NrpZ:
         if check_freq:
             lo, hi = self.freq_limits()
             if not (lo <= freq_hz <= hi):
-                raise NrpError(f"freq {freq_hz:g} Hz outside calibrated range "
-                               f"{lo:g}-{hi:g} Hz; reading would be uncalibrated")
-        for c in ("*RST",
-                  'SENSe:FUNCtion "POWer:AVG"',
-                  f"SENSe:FREQuency {freq_hz:g}",
-                  "SENSe:AVERage:COUNt:AUTO OFF",
-                  f"SENSe:AVERage:COUNt {count}",
-                  "SENSe:AVERage:TCONtrol REPeat",   # single-shot: clear+refill the
-                  "SENSe:AVERage:STATe ON",          # filter, so integration = count windows
-                  "INITiate:CONTinuous OFF",
-                  "TRIGger:SOURce IMMediate"):
+                raise NrpError(
+                    f"freq {freq_hz:g} Hz outside calibrated range "
+                    f"{lo:g}-{hi:g} Hz; reading would be uncalibrated"
+                )
+        for c in (
+            "*RST",
+            'SENSe:FUNCtion "POWer:AVG"',
+            f"SENSe:FREQuency {freq_hz:g}",
+            "SENSe:AVERage:COUNt:AUTO OFF",
+            f"SENSe:AVERage:COUNt {count}",
+            "SENSe:AVERage:TCONtrol REPeat",  # single-shot: clear+refill the
+            "SENSe:AVERage:STATe ON",  # filter, so integration = count windows
+            "INITiate:CONTinuous OFF",
+            "TRIGger:SOURce IMMediate",
+        ):
             self.write(c)
         # INIT: ack is 'Z'+'R'; the result is pushed afterwards as an 'E' record.
         self.dev.write(EP_OUT, b"INITiate:IMMediate\n", timeout=2000)
@@ -237,7 +245,7 @@ class NrpZ:
             if len(rec) < 8:
                 continue
             if rec[0] == R_RESULT:
-                st = rec[1]                       # result status: over-range/overload/etc.
+                st = rec[1]  # result status: over-range/overload/etc.
                 w = struct.unpack("<f", rec[4:8])[0]
                 self._drain()
                 if st:
@@ -266,7 +274,7 @@ def main(argv=None):
                         print(f"warning: {e}", file=sys.stderr)
                 w = s.measure_power(freq)
                 print(f"{w:.6e} W   ({dbm(w):.2f} dBm)  @ {freq:g} Hz")
-            else:                                    # raw SCPI passthrough
+            else:  # raw SCPI passthrough
                 for c in args:
                     print(f"{c} -> {s.ask(c)!r}" if "?" in c else f"{c} (sent)")
                     if "?" not in c:

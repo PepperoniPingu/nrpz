@@ -4,7 +4,8 @@ The record vectors below are real bytes captured from an NRP-Z11 answering
 *IDN? and SENS:FREQ?, so this is a genuine regression test of the wire decode.
 Run with `pytest`, or directly: `python tests/test_nrpz.py`.
 """
-from nrpz import decode_message, dbm
+
+from nrpz import dbm, decode_message
 
 # Real *IDN? response: four 'T' text records (offset in bytes[4:6]) + 'R' end.
 IDN_RECORDS = [
@@ -34,7 +35,7 @@ def test_numeric_query():
     assert status == 0
     assert text == ""
     assert len(floats) == 1
-    assert abs(floats[0] - 1e9) < 1.0        # exact float32 for 1e9
+    assert abs(floats[0] - 1e9) < 1.0  # exact float32 for 1e9
 
 
 def test_error_status_byte():
@@ -45,10 +46,10 @@ def test_error_status_byte():
 
 
 def test_dbm():
-    assert abs(dbm(1e-3) - 0.0) < 1e-9       # 1 mW == 0 dBm
-    assert abs(dbm(1.0) - 30.0) < 1e-9       # 1 W  == +30 dBm
+    assert abs(dbm(1e-3) - 0.0) < 1e-9  # 1 mW == 0 dBm
+    assert abs(dbm(1.0) - 30.0) < 1e-9  # 1 W  == +30 dBm
     assert dbm(0.0) == float("-inf")
-    assert dbm(-1e-9) == float("-inf")       # negative (below zero) -> -inf
+    assert dbm(-1e-9) == float("-inf")  # negative (below zero) -> -inf
 
 
 if __name__ == "__main__":
