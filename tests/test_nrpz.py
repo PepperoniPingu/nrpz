@@ -5,7 +5,7 @@ The record vectors below are real bytes captured from an NRP-Z11 answering
 Run with `pytest`, or directly: `python tests/test_nrpz.py`.
 """
 
-from nrpz import dbm, decode_message
+from nrpz import dbm, decode_message, main
 
 # Real *IDN? response: four 'T' text records (offset in bytes[4:6]) + 'R' end.
 IDN_RECORDS = [
@@ -43,6 +43,13 @@ def test_error_status_byte():
     recs = [bytes.fromhex("52890000000000000000000000000000")]
     status, _, _ = decode_message(recs)
     assert status == 0x89
+
+
+def test_help_no_device():
+    # -h / --help must work without a sensor connected (no device access).
+    assert main(["-h"]) == 0
+    assert main(["--help"]) == 0
+    assert main(["help"]) == 0
 
 
 def test_dbm():

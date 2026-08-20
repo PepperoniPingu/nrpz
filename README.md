@@ -88,6 +88,7 @@ Invoke as `nrpz <command>` (console script), or `python -m nrpz <command>`.
 | `nrpz power <freq_hz> [--zero]` | Average-power measurement at the given frequency (Hz). `--zero` runs a zero calibration first (input must be quiet). |
 | `nrpz test` | Run the sensor self-test (memory, voltages, temperature, cal checksum). |
 | `nrpz '<SCPI>'` | Raw SCPI passthrough. Queries (containing `?`) print the reply; plain commands are just sent. Quote to protect from the shell. |
+| `nrpz -h` / `nrpz --help` | Show usage help (works without a sensor connected). |
 
 Frequency is in **Hz** (`1e9` = 1 GHz, `100e6` = 100 MHz) and must be inside the
 sensor's calibrated range or it is rejected.

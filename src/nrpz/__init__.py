@@ -256,8 +256,30 @@ class NrpZ:
         raise NrpError("measurement timed out (no result pushed)")
 
 
+HELP = """\
+nrpz - native Linux driver for R&S NRP-Z USB power sensors
+
+usage:
+  nrpz [idn]                  print sensor identity (*IDN?)  [default]
+  nrpz power <freq_hz> [--zero]
+                              average-power measurement at <freq_hz> Hz;
+                              --zero runs a zero calibration first
+  nrpz test                   run the sensor self-test
+  nrpz '<SCPI>'               send raw SCPI; queries (with ?) print the reply
+  nrpz -h | --help            show this help
+
+examples:
+  nrpz
+  nrpz power 2.4e9 --zero
+  nrpz 'SENS:FREQ?'
+"""
+
+
 def main(argv=None):
     args = sys.argv[1:] if argv is None else list(argv)
+    if args and args[0] in ("-h", "--help", "help"):
+        print(HELP)
+        return 0
     try:
         with NrpZ() as s:
             if not args or args[0] in ("id", "idn"):
