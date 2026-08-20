@@ -25,6 +25,11 @@ dependencies = ["pyusb>=1.2"]
 [project.scripts]
 nrpz = "nrpz:main"
 
+[project.urls]
+Homepage = "https://github.com/PepperoniPingu/nrpz"
+Repository = "https://github.com/PepperoniPingu/nrpz"
+Issues = "https://github.com/PepperoniPingu/nrpz/issues"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/nrpz"]
 
