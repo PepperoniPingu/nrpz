@@ -26,13 +26,14 @@ no vendor DLLs, and no VM — just `libusb`.
 ## Install
 
 ```bash
-pip install -e .          # from this directory (editable), or:
-pip install .
+pip install nrpz
 ```
 
 Requires Python ≥ 3.8, [`pyusb`](https://github.com/pyusb/pyusb) (installed
 automatically), and a system `libusb-1.0` (e.g. `sudo dnf install libusb1` /
 `sudo apt install libusb-1.0-0`).
+
+From source (for development): clone the repo and run `pip install -e .`.
 
 ## Permissions (one-time)
 
@@ -40,7 +41,9 @@ The sensor's USB node is root-only by default. Install the udev rule so your
 user can open it:
 
 ```bash
-sudo install -m644 59-nrpz.rules /etc/udev/rules.d/
+sudo tee /etc/udev/rules.d/59-nrpz.rules >/dev/null <<'EOF'
+SUBSYSTEM=="usb", ATTR{idVendor}=="0aad", MODE="0660", GROUP="dialout", TAG+="uaccess"
+EOF
 sudo udevadm control --reload
 sudo udevadm trigger --attr-match=idVendor=0aad
 ```
