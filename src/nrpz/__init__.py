@@ -38,7 +38,7 @@ import time
 import usb.core
 import usb.util
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = ["NrpZ", "NrpError", "decode_message", "dbm", "main", "VID", "PID", "DEV_ERR"]
 
 VID, PID = 0x0AAD, 0x000C
